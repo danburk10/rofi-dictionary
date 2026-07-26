@@ -122,7 +122,13 @@ class RofiApp:
                     query = result.stdout.strip().lower()
                     #self.api_req.query(query) #gets the word from api call
                     self.entry = self.service.lookup(query) #self.api_req.query(query) todo
-                    self.state = 2
+
+                    if query == '':
+                        self.state = -1
+                    elif len(self.entry.definitions) == 0:
+                        self.state = 0
+                    else:
+                        self.state = 2
                 except KeyError:
                     if query != '':
                         self.state = 0
