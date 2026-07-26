@@ -5,6 +5,7 @@ import sqlite3
 from models.dictionary_entry import WordEntry
 #from providers.base import DictionaryProvider
 
+#data/dictionary.db is built using https://github.com/ishaanrajiv/SQLite-Offline-Dictionary/blob/main/README.md  
 
 class SqliteProvider():
 
