@@ -4,7 +4,7 @@ A dictionary program that uses Rofi's dMenu as an interface.
 &nbsp;
 
 **This is a fork of [kev-cao/rofi-dictionary](https://github.com/kev-cao/rofi-dictionary)**
-see [CHANGES.md](./CHANGES.md) for what's different.
+see [CHANGES.md](./CHANGES.md) for what's different. Once everything has been updated and tested thoroughly i hope to create a pull request to merge these changes with the original repo. 
 
 &nbsp;
 
