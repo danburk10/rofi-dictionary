@@ -3,7 +3,7 @@
 #from providers.api_provider import ApiProvider
 #from providers.cache_provider import CacheProvider
 #from providers.json_provider import JsonProvider
-from providers.sqlite_2_provider import SqliteProvider
+from providers.sqlite_wordnet31_provider import SqliteProvider
 
 
 class ProviderFactory:
