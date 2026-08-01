@@ -10,7 +10,7 @@ from models.dictionary_entry import Definition
 
 
 def build_service() -> DictionaryService:
-    provider = ProviderFactory.create("sqlite_2_provider")
+    provider = ProviderFactory.create("sqlite_wordnet31_provider")
     return DictionaryService(provider)
 ####################################
 
