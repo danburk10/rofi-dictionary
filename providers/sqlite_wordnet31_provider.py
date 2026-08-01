@@ -7,7 +7,7 @@ from models.dictionary_entry import WordEntry
 
 #data/dictionary.db is built using https://github.com/ishaanrajiv/SQLite-Offline-Dictionary/blob/main/README.md  
 
-class SqliteProvider():
+class Wordnet31Provider():
 
     def __init__(self, database: str):
         self.database = "data/wordnet31.db"
