@@ -10,7 +10,7 @@ from models.dictionary_entry import WordEntry
 class SqliteProvider():
 
     def __init__(self, database: str):
-        self.database = "data/dictionary.db"
+        self.database = "data/wordnet31.db"
 
 
     def get_entry(self, word: str) -> WordEntry | None:
