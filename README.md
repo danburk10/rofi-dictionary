@@ -1,6 +1,15 @@
 # Rofi Dictionary &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/defCoding/rofi-dictionary/blob/master/LICENSE) [![Python version](https://img.shields.io/badge/python-3.8-blue)](https://www.python.org/downloads/release/python-380/) [![Dictionary API](https://img.shields.io/badge/api-OxfordDictionary-brightgreen)](https://developer.oxforddictionaries.com/)
 A dictionary program that uses Rofi's dMenu as an interface.
 
+&nbsp;
+
+**This is a fork of [kev-cao/rofi-dictionary](https://github.com/kev-cao/rofi-dictionary)**
+see [CHANGES.md](./CHANGES.md) for what's different. Once everything has been updated and tested thoroughly i hope to create a pull request to merge these changes with the original repo.  
+
+Thank you **kev-cao** for all of your hard work. 
+
+&nbsp;
+
 ## Context
 From time to time, I'll get curious about the definition of a word I chance upon. To find the definition of the word, I then have to open up a web browser, then type in the search bar "define {word}". That's one step too many. Also I have to wait for the web browser to load up, and that's like *nearly a second*. I could do a lot in a second. Also I needed an excuse to make this program.
 

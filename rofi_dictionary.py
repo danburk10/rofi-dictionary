@@ -1,10 +1,18 @@
-#!/usr/bin/env python3
+# main.py
 
 from subprocess import run, Popen, PIPE
-from api_requester import ApiRequester
 from rapidfuzz import process, fuzz
 import re, json, os
 
+from providers.factory import ProviderFactory
+from services.dictionary_service import DictionaryService
+from models.dictionary_entry import Definition
+
+
+def build_service() -> DictionaryService:
+    provider = ProviderFactory.create("sqlite_wordnet31_provider")
+    return DictionaryService(provider)
+####################################
 
 def split_string(s, skip):
     """
@@ -42,13 +50,16 @@ class RofiApp:
         #   3: 'DEFINITIONS'
         #   4: 'DETAILED_DEF'
         self.filepath = os.path.dirname(os.path.realpath(__file__))
-        with open(f"{self.filepath}/config.json", 'r') as f:
-            self.config = json.load(f)
+        #with open(f"{self.filepath}/data/config.json", 'r') as f:
+        #    self.config = json.load(f)
 
         self.state = 1
         self.rofi_command = ['rofi', '-dmenu', '-lines', '10', '-no-fixed-num-lines', '-i']
         self.pattern = re.compile(r"(\d+):")
-        self.api_req = ApiRequester()
+        #self.api_req = ApiRequester()
+
+        #call get word
+        self.service = build_service()   #lookup word using 
 
     def display_menu(self, menu, title, back_msg, prev_state, next_state):
         """
@@ -67,7 +78,6 @@ class RofiApp:
         rofi_input = back_msg + "\n" + "\n".join(menu)
         echo = Popen(["echo", rofi_input], stdout=PIPE)
         result = run(self.rofi_command + ['-no-custom', '-p', title], stdin=echo.stdout, capture_output=True, text=True).stdout.strip()
-        print(result)
         echo.stdout.close()
 
         if back_msg == result:
@@ -85,12 +95,17 @@ class RofiApp:
         Runs the app until the user exits.
         """
         # These are used to remember the choices made in previous states when going back.
-        defns_choice = defn_choice = 0 
+
         query = ''
+        part_of_speech = []
+        defns_choice = 0
+        defn_choice = 0 
+        defns: list[Definition] = []
+
         while self.state != -1:
             if self.state == 0:
                 # WORD_404 State - Word not found, try fuzzy search.
-                with open(f'{self.filepath}/dictionary.json', 'r') as f:
+                with open(f'{self.filepath}/data/dictionary.json', 'r') as f:
                     words = json.load(f)["words"]
                     closest_words = process.extract(query, words, limit=3, scorer=fuzz.ratio)
                     options = [f"{idx}: {r[0]}" for idx, r in enumerate(closest_words)]
@@ -98,15 +113,22 @@ class RofiApp:
                 choice = self.display_menu(options, f"ERR: Could not find \"{query}\". Did you mean:", "⬅ Go back.", 1, 2)
                 if choice != -1:
                     query = closest_words[choice][0]
-                    self.api_req.query(query)
+                    self.entry = self.service.lookup(query) #self.api_req.query(query) todo
 
             elif self.state == 1:
                 # DEFINE State - Ask user for word.
                 try:
                     result = run(self.rofi_command + ['-p', 'define:'], capture_output=True, text=True)
                     query = result.stdout.strip().lower()
-                    self.api_req.query(query)
-                    self.state = 2
+                    #self.api_req.query(query) #gets the word from api call
+                    self.entry = self.service.lookup(query) #self.api_req.query(query) todo
+
+                    if query == '':
+                        self.state = -1
+                    elif len(self.entry.definitions) == 0:
+                        self.state = 0
+                    else:
+                        self.state = 2
                 except KeyError:
                     if query != '':
                         self.state = 0
@@ -115,14 +137,22 @@ class RofiApp:
 
             elif self.state == 2:
                 # CATEGORIES State - Show lexical categories of definitions.
-                categories = self.api_req.get_results_preview()
-                categories = [f"{idx}: {c['text']}" for idx, c in enumerate(categories)]
+                # categories = self.api_req.get_results_preview()
+
+                part_of_speech = self.entry.get_part_of_speech()
+
+                #build list w/ index (0: )
+                categories = [f"{idx}: {c}" for idx, c in enumerate(part_of_speech)]
                 defns_choice = self.display_menu(categories, query, "⬅ Go back.", 1, 3)
 
             elif self.state == 3:
-                # DEFINITIONS State - Show list of definitions.
-                defns = self.api_req.get_senses_definitions(defns_choice, self.config['num_defns'])['definitions']
-                fdefns = [f"{idx}: {d}" for idx, d in enumerate(defns)]
+                # DEFINITIONS State- Show definitions for selected part_of_speech
+                # todo implement Dictionary get_part_of_speech_definitions
+                # print(self.entry.get_definitions_part_of_speech(part_of_speech[defns_choice]))
+
+                defns = self.entry.get_definitions_part_of_speech(part_of_speech[defns_choice])
+                #defns = self.api_req.get_senses_definitions(defns_choice, self.config['num_defns'])['definitions']
+                fdefns = [f"{idx}: {d.get_definition()}" for idx, d in enumerate(defns)]
                 defn_choice = self.display_menu(fdefns, query, "⬅ Go back.", 2, 4)
 
             elif self.state == 4:
@@ -130,11 +160,39 @@ class RofiApp:
                 defn = defns[defn_choice]
 
                 # Split defn every so many characters to make space.
-                skip = self.config['chars_per_line']
-                defn = split_string(defn, skip)
+                #todo = self.config['chars_per_line'] #todo
+                #defn = split_string(defn, skip)
 
-                choice = self.display_menu([defn], query,"⬅ Go back.", 3, 4)
+                choice = self.display_menu([defn.get_definition()], query,"⬅ Go back.", 3, 4)
 
 if __name__ == '__main__':
     app = RofiApp()
     app.run()
+
+
+
+
+
+###################################
+""" def main():
+    service = build_service()
+
+    while True:
+        word = input("\nWord (Q=quit): ").strip()
+
+        if word.upper() == "Q":
+            break
+
+        entry = service.lookup(word)
+
+        if entry is None:
+            print(f"No definition found for {word}")
+        else:
+            print()
+            print(entry.display())
+        
+
+if __name__ == "__main__":
+    main()
+
+ """
