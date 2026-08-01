@@ -3,7 +3,7 @@
 #from providers.api_provider import ApiProvider
 #from providers.cache_provider import CacheProvider
 #from providers.json_provider import JsonProvider
-from providers.sqlite_wordnet31_provider import SqliteProvider
+from providers.sqlite_wordnet31_provider import Wordnet31Provider
 
 
 class ProviderFactory:
@@ -15,7 +15,7 @@ class ProviderFactory:
 
 
         if provider_type == "sqlite_wordnet31_provider":
-            return SqliteProvider("data/wordnet31.db")
+            return Wordnet31Provider("data/wordnet31.db")
 
         """
         if provider_type == "api":
