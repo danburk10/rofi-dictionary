@@ -14,8 +14,8 @@ class ProviderFactory:
 
 
 
-        if provider_type == "sqlite_2_provider":
-            return SqliteProvider("data/dictionary.db")
+        if provider_type == "sqlite_wordnet31_provider":
+            return SqliteProvider("data/wordnet31.db")
 
         """
         if provider_type == "api":
